@@ -1,0 +1,41 @@
+---
+## Play header
+# name of the playbook
+- name: simple playbook to install and start apache
+  # hosts group from the hosts inventory
+  hosts: myhosts
+  # user name I will connect with
+  remote_user: hlfd
+  # become root user when connecting to the machine (sodoers must me configured)
+  become: yes
+
+## Tasks section
+  tasks:
+
+  # name of the task
+  - name: update repository
+  # module name I am going to run
+    apt: update_cache=yes 
+
+  # lets install some packages in loop
+  - name: install python bindings for SELinux
+    apt: name={{item}} state=latest
+    with_items:
+    - python-selinux
+    - python-semanage
+
+  # example of setting new variable which holds true is SElinux is running
+  - name: test to see if SELinux is running
+    # module 'command' will run command 
+    command: getenforce
+    # lets register the output of the command in the variable sestatus 
+    register: sestatus
+    # lets change the state to false since the command module will set it to true
+    # even when nothing has happened 
+    changed_when: false
+
+  - name: install apache
+    apt: name=apache2 update_cache=yes state=latest
+    
+  - name: start apache
+    service: name=apache2 state=started enabled=yes

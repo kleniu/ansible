@@ -1,0 +1,6 @@
+[myhosts]
+hlfd ansible_port=7222 ansible_host=localhost
+
+[all:vars]
+ansible_connection=ssh
+ansible_user=hlfd
